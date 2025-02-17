@@ -6,14 +6,15 @@ from pathlib import Path
 GEMINI_API_KEY = ""
 genai.configure(api_key=GEMINI_API_KEY)
 
+
 class PaperAnalyzer:
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        self.model = genai.GenerativeModel("gemini-1.5-pro-latest")
         self.safety_settings = {
             HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
             HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE
+            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
         }
 
     def analyze_paper(self, pdf_path: str) -> str:
@@ -24,17 +25,17 @@ class PaperAnalyzer:
         try:
             abs_path = Path(pdf_path).absolute()
             print(f"Looking for PDF at: {abs_path}")
-            
+
             if not abs_path.exists():
-                available_files = list(abs_path.parent.glob('*'))
+                available_files = list(abs_path.parent.glob("*"))
                 print(f"Available files: {available_files}")
                 return f"File not found: {abs_path}"
 
             uploaded_file = genai.upload_file(str(abs_path))
 
             uploaded_file = genai.upload_file(pdf_path)
-            
-            prompt = f"""Analyze this research paper thoroughly, considering both text and visual elements:
+
+            prompt = """Analyze this research paper thoroughly, considering both text and visual elements:
             Provide in depth explanation with all core mathematical concepts and intuition behind them.
 
             1. Paper Structure Analysis:
@@ -68,25 +69,26 @@ class PaperAnalyzer:
             response = self.model.generate_content(
                 [prompt, uploaded_file],
                 safety_settings=self.safety_settings,
-                generation_config={"temperature": 0.2}
+                generation_config={"temperature": 0.2},
             )
-            
+
             genai.delete_file(uploaded_file.name)
             return response.text
 
         except Exception as e:
             return f"Analysis failed: {str(e)}"
 
+
 if __name__ == "__main__":
     analyzer = PaperAnalyzer()
-    
+
     paper_path = r"papers/test_pdf.pdf"
-    
+
     print(f"Current working directory: {os.getcwd()}")
     print(f"Path exists: {Path(paper_path).exists()}")
-    
+
     analysis = analyzer.analyze_paper(paper_path)
     print(analysis)
-    
+
     with open("full_analysis.md", "w") as f:
         f.write(analysis)
