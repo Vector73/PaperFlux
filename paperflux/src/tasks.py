@@ -1,11 +1,15 @@
-import aiohttp
 import asyncio
+import aiohttp
+from pymongo import MongoClient
+from datetime import datetime, timezone
 import os
-from datetime import datetime
 
 API_URL = "https://huggingface.co/api/daily_papers"
 PDF_BASE_URL = "https://arxiv.org/pdf/{id}.pdf"
-DOWNLOAD_DIR = "papers"
+
+client = MongoClient("mongodb://localhost:27017/")
+db = client["papers_summary_database"]
+collection = db["papers"]
 
 
 async def fetch_papers(session):
@@ -19,49 +23,34 @@ async def download_pdf(session, paper_entry):
     try:
         paper_id = paper_entry["paper"]["id"]
         pdf_url = PDF_BASE_URL.format(id=paper_id)
-        clean_id = paper_id.replace("/", "_")
-        filename = f"{datetime.now().date()}_{clean_id}.pdf"
-        filepath = os.path.join(DOWNLOAD_DIR, filename)
 
         async with session.get(pdf_url) as response:
             if response.status == 200:
                 content = await response.read()
-                with open(filepath, "wb") as f:
+                os.makedirs("pdfs", exist_ok=True)
+                with open(f"pdfs/{paper_id}", "wb") as f:
                     f.write(content)
+
                 return (paper_id, True)
+
             return (paper_id, False)
     except Exception as e:
         print(f"Error downloading {paper_id}: {str(e)}")
         return (paper_id, False)
 
 
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-
-
-async def main():
+async def run_paper_fetch_job():
     async with aiohttp.ClientSession() as session:
         papers = await fetch_papers(session)
-        print(f"Found {len(papers)} papers")
+        tasks = []
 
-        print(f"\nFound {len(papers)} papers:")
-        for i, paper_entry in enumerate(papers, 1):
-            paper = paper_entry.get("paper", {})
-            print(f"\nPaper {i}:")
-            print(f"ID: {paper.get('id')}")
-            print(f"Title: {paper.get('title')}")
-            print(
-                f"Authors: {', '.join([author.get('name') for author in paper.get('authors', [])])}"
-            )
-            print(f"Published: {paper.get('publishedAt')}")
-            print(f"Summary: {paper.get('summary')[:200]}...")
-            print(f"PDF URL: {PDF_BASE_URL.format(id=paper.get('id'))}")
+        for paper in papers:
+            paper_data = paper["paper"]
+            paper_data["fetchedAt"] = datetime.now(timezone.utc).isoformat()
+            collection.insert_one(paper_data)
 
         tasks = [download_pdf(session, paper) for paper in papers]
         results = await asyncio.gather(*tasks)
 
         successful = sum(1 for _, status in results if status)
         print(f"Downloaded {successful}/{len(papers)} papers successfully")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
