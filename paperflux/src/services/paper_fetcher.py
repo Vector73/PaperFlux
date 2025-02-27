@@ -4,7 +4,7 @@ import asyncio
 from datetime import datetime
 from typing import List, Tuple, Optional
 from src.config.settings import HF_API_URL, PDF_BASE_URL, TEMP_DIR
-from src.models.paper import Paper
+from paperflux.src.models.models import Paper
 
 class PaperFetcher:
     def __init__(self):
@@ -47,43 +47,20 @@ class PaperFetcher:
             print(f"Error downloading {paper_id}: {str(e)}")
             return None
 
-    async def download_all_papers(self, papers: List[dict]) -> List[Tuple[str, bool]]:
+    async def download_papers(self, papers: List[dict]) -> List[Tuple[str, bool]]:
         """Download all papers in parallel."""
-        async with aiohttp.ClientSession() as session:
-            tasks = []
-            for paper in papers:
-                paper_id = paper["paper"]["id"]
-                pdf_url = PDF_BASE_URL.format(id=paper_id)
-                clean_id = paper_id.replace("/", "_")
-                filename = f"{datetime.now().date()}_{clean_id}.pdf"
-                filepath = os.path.join(TEMP_DIR, filename)
+        tasks = []
+        for paper in papers:
+            tasks.append(self.download_paper(paper))
 
-                tasks.append(self.download_single_paper(session, paper_id, pdf_url, filepath))
-            
-            results = await asyncio.gather(*tasks)
-            successful = sum(1 for status in results if status[1])
-            print(f"Downloaded {successful}/{len(papers)} papers successfully")
-            return results
-
-    async def download_single_paper(
-        self, 
-        session: aiohttp.ClientSession, 
-        paper_id: str, 
-        pdf_url: str, 
-        filepath: str
-    ) -> Tuple[str, bool]:
-        """Download a single paper with the given session."""
-        try:
-            async with session.get(pdf_url) as response:
-                if response.status == 200:
-                    content = await response.read()
-                    with open(filepath, "wb") as f:
-                        f.write(content)
-                    return (paper_id, True)
-                return (paper_id, False)
-        except Exception as e:
-            print(f"Error downloading {paper_id}: {str(e)}")
-            return (paper_id, False)
+        results = await asyncio.gather(*tasks)
+        paper_paths = {}
+        for paper, file_path in zip(papers, results):
+            if file_path:
+                paper_paths[paper["paper"]["id"]] = file_path
+        successful = sum(1 for status in results if status[1])
+        print(f"Downloaded {successful}/{len(papers)} papers successfully")
+        return paper_paths
 
     def parse_paper_data(self, paper_entry: dict) -> Paper:
         """Convert raw paper data to Paper model."""

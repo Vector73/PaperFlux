@@ -1,30 +1,24 @@
-import signal
-import sys
+import logging
 from src.scheduler.jobs import PaperProcessingScheduler
 from src.web.app import PaperFluxUI
-import threading
+import streamlit as st
 
-def signal_handler(signum, frame):
-    print("\nShutting down gracefully...")
-    scheduler.stop()
-    sys.exit(0)
+# logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("paperflux.main")
+logger.info("Initializing PaperFlux")
 
-def main():
-    global scheduler
-    
-    # Set up signal handlers
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+# Initialize scheduler
+logger.info("Creating scheduler")
+scheduler = PaperProcessingScheduler()
 
-    # Start the scheduler in a background thread
-    scheduler = PaperProcessingScheduler()
-    scheduler_thread = threading.Thread(target=scheduler.start, daemon=True)
-    scheduler_thread.start()
+# Start scheduler
+logger.info("Starting scheduler")
+scheduler.start()
+logger.info("Scheduler started")
 
-    # Create and launch the Gradio interface
-    ui = PaperFluxUI()
-    interface = ui.create_interface()
-    interface.launch(server_name="0.0.0.0", share=True)
-
-if __name__ == "__main__":
-    main()
+# Create and render UI
+logger.info("Creating UI")
+ui = PaperFluxUI(scheduler=scheduler)
+logger.info("Rendering UI")
+ui.render_app()
