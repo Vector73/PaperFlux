@@ -51,12 +51,12 @@ class PaperAnalyzer:
                     generation_config={"temperature": 0.2},
                 )
 
-                print(response)
+                self.change_api_key()
                 genai.delete_file(uploaded_file.name)
                 return response.text
             except Exception as e:
                 print(f"Unexpected error: {e}")
                 if "429" not in str(e):
                     return
-                time.sleep(200)
+                time.sleep(2000)
                 self.change_api_key()
