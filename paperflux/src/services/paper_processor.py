@@ -1,9 +1,9 @@
 import os
 import logging
 from concurrent.futures import ThreadPoolExecutor
-from src.services.paper_fetcher import PaperFetcher
-from src.services.paper_analyzer import PaperAnalyzer
-from src.services.database import DatabaseService
+from paper_fetcher import PaperFetcher
+from paper_analyzer import PaperAnalyzer
+from database import DatabaseService
 
 logger = logging.getLogger("paperflux.paper_processor")
 

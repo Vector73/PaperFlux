@@ -1,11 +1,11 @@
 import time
 from datetime import datetime, timedelta
 from pymongo import MongoClient
-from src.models.models import Paper, ProcessingMetadata
+from models.models import Paper, ProcessingMetadata
 import threading
 import logging
 import os
-from src.config.settings import DB_NAME, COLLECTION_NAME, METADATA_COLLECTION
+from config.settings import DB_NAME, COLLECTION_NAME, METADATA_COLLECTION
 from dotenv import load_dotenv
 
 load_dotenv()

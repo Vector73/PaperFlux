@@ -4,8 +4,8 @@ import asyncio
 import logging
 from datetime import datetime
 from typing import List, Dict, Optional
-from src.config.settings import HF_API_URL, PDF_BASE_URL, TEMP_DIR
-from src.models.models import Paper
+from config.settings import HF_API_URL, PDF_BASE_URL, TEMP_DIR
+from models.models import Paper
 
 logger = logging.getLogger("paperflux.paper_fetcher")
 

@@ -4,8 +4,8 @@ import time
 from datetime import datetime, timedelta
 import pytz
 
-from src.services.paper_processor import PaperProcessor
-from src.services.database import DatabaseService
+from paper_processor import PaperProcessor
+from database import DatabaseService
 
 logger = logging.getLogger("paperflux.scheduler")
 
