@@ -1,3 +1,14 @@
+---
+title: PaperFlux
+emoji: 📚
+colorFrom: blue
+colorTo: indigo
+sdk: streamlit
+sdk_version: 1.30.0
+app_file: app.py
+pinned: true
+---
+
 # PaperFlux: AI Research Paper Insights
 
 PaperFlux is a Streamlit based web application powered by Gemini that automatically fetches, analyzes, and explains the latest AI research papers from Hugging Face's daily curated list. Using Google's Gemini Pro AI, it provides in-depth explanations and technical breakdowns of complex research papers, making cutting-edge AI research more accessible.
