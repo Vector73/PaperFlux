@@ -2,11 +2,13 @@ import streamlit as st
 import asyncio
 import threading
 import os
-import base64
 from datetime import datetime
 import time
 import logging
 import pytz
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 # Configure logging
 logging.basicConfig(

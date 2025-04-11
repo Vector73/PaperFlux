@@ -1,11 +1,11 @@
 import time
 from datetime import datetime, timedelta
 from pymongo import MongoClient
-from models.models import Paper, ProcessingMetadata
+from paperflux.src.models.models import Paper, ProcessingMetadata
 import threading
 import logging
 import os
-from config.settings import DB_NAME, COLLECTION_NAME, METADATA_COLLECTION
+from paperflux.src.config.settings import DB_NAME, COLLECTION_NAME, METADATA_COLLECTION
 from dotenv import load_dotenv
 
 load_dotenv()
