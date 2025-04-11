@@ -15,10 +15,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger("paperflux.app")
 
-from src.services.database import DatabaseService
-from src.services.paper_processor import PaperProcessor
-from src.services.scheduler import PaperScheduler
-from src.config.settings import TEMP_DIR
+from paperflux.src.services.database import DatabaseService
+from paperflux.src.services.paper_processor import PaperProcessor
+from paperflux.src.services.scheduler import PaperScheduler
+from paperflux.src.config.settings import TEMP_DIR
 
 os.makedirs(TEMP_DIR, exist_ok=True)
 
