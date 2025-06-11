@@ -34,7 +34,7 @@ class PaperAnalyzer:
     def _configure_client(self):
         """Configure the Gemini client with the current API key"""
         genai.configure(api_key=self.api_keys[self.key_index])
-        self.model = genai.GenerativeModel("gemini-1.5-pro-latest")
+        self.model = genai.GenerativeModel("gemini-2.5-flash-preview-05-20")
         self.safety_settings = {
             HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
